@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jaljeevika — Thirteenth Annual Day</title>
 <meta name="description" content="You are invited to the Annual Day of the Centre for Aquatic Livelihood – Jaljeevika — thirteen years since 30 September 2013.">
+<meta name="theme-color" content="#f2ece0">
 <link rel="icon" href="logo.png" type="image/png">
 <script>document.documentElement.className += ' js';</script>
 
@@ -35,7 +36,19 @@
 </script>
 
 <style>
-  /* ============ brand tokens, sampled from the logo artwork ============ */
+  /* ═══════════════════════════════════════════════════════════════════════
+     MOBILE FIRST.
+     Everything outside a media query is the phone layout. The only media
+     queries that ADD are min-width — nothing is written for a big screen and
+     then walked back for a small one. Two exceptions, both correct as
+     max-width-free feature queries: prefers-reduced-motion, and the
+     (hover:hover) block that holds every pointer-only 3-D flourish so touch
+     devices never pay for it.
+     Breakpoints: 560px (bigger phones / small tablets), 720px (tablet up),
+     1180px (room in the margins for the watermarks).
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* ---- brand tokens, sampled from the logo artwork ---- */
   :root{
     --paper:#f2ece0; --paper-deep:#e6dcc7;
     --ink:#1e1c28;  --ink-soft:#55516a;
@@ -44,12 +57,27 @@
     --marigold:#de9a34;
     --reed:#6d7f45;
     --rule:rgba(30,28,40,0.16);
+
+    /* phone values first; the min-width blocks below raise them */
+    --gutter:20px;
+    --stage-h:250px;
+    --logo-h:176px;
+    --glow-d:240px;
+    --fs-body:16px;
+    --fs-h1:38px;
+    --fs-ordinal:18px;
+    --fs-h2:23px;
   }
 
   *{ box-sizing:border-box; }
+
   /* the ripple rings and watermarks are meant to bleed off the edges —
-     clip them so they never widen the document */
-  html{ scroll-behavior:smooth; overflow-x:hidden; }
+     clip them so they never widen the document on a narrow screen */
+  html{
+    scroll-behavior:smooth;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;   /* stop iOS inflating body text in landscape */
+  }
 
   body{
     margin:0;
@@ -60,7 +88,8 @@
       var(--paper);
     color:var(--ink);
     font-family:'Karla', system-ui, sans-serif;
-    line-height:1.5;
+    font-size:var(--fs-body);
+    line-height:1.55;
     -webkit-font-smoothing:antialiased;
     overflow-x:hidden;
   }
@@ -72,39 +101,33 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* ============ the logo, held off to the side as a watermark ============ */
-  .watermark{
-    position:fixed; top:50%; pointer-events:none; z-index:0;
-    width:min(46vw, 460px); opacity:.055;
-    will-change:transform;
+  /* one element owns the side gutter, so it can never be doubled or zeroed */
+  .page{
+    position:relative; z-index:2;
+    width:100%; max-width:720px;
+    margin-inline:auto;
+    padding-inline:var(--gutter);
   }
-  .watermark--left { left:0;  transform:translate(-42%,-50%) rotate(-8deg); }
-  .watermark--right{ right:0; transform:translate(42%,-46%) rotate(9deg); }
-  @media (max-width:1180px){ .watermark{ display:none; } }
 
-  .page{ position:relative; z-index:2; }
+  /* ---- the logo held off to the side as a watermark: large screens only,
+          where there is actually margin to put it in ---- */
+  .watermark{ display:none; }
 
-  /* ============ the 3-D stage ============ */
+  /* ---- the 3-D stage ---- */
   .stage{
     position:relative;
-    height:clamp(280px, 52vw, 380px);
-    margin:22px auto 4px;
+    height:var(--stage-h);
+    margin:14px auto 0;
     perspective:900px;
     perspective-origin:50% 46%;
   }
-  .stage-inner{
-    position:absolute; inset:0;
-    transform-style:preserve-3d;
-    transition:transform .5s cubic-bezier(.22,.61,.36,1);
-  }
-  /* once JS drives the scene every frame, a CSS transition only fights the
-     easing done in the rAF loop */
-  .js .stage-inner{ transition:none; }
+  .stage-inner{ position:absolute; inset:0; transform-style:preserve-3d; }
 
-  /* rings lying flat on the water plane — the depth cue for the whole scene */
+  /* rings lying flat on the water plane — the depth cue for the whole scene.
+     Sized in vw so they cannot reach past a narrow viewport. */
   .rings{
     position:absolute; left:50%; top:66%;
-    width:min(260px, 56vw); aspect-ratio:1;
+    width:min(230px, 58vw); aspect-ratio:1;
     transform:translate(-50%,-50%) rotateX(70deg) translateZ(-70px);
     transform-style:preserve-3d;
   }
@@ -122,18 +145,17 @@
     100% { transform:scale(1.55); opacity:0; border-width:.5px; }
   }
 
-  /* the glow the droplet floats in */
   .glow{
     position:absolute; left:50%; top:44%;
-    width:340px; height:340px; margin:-170px 0 0 -170px;
+    width:var(--glow-d); aspect-ratio:1;
     border-radius:50%;
     background:radial-gradient(circle, rgba(135,136,193,.34), rgba(135,136,193,0) 66%);
-    transform:translateZ(-120px);
+    transform:translate(-50%,-50%) translateZ(-120px);
     animation:breathe 7s ease-in-out infinite;
   }
   @keyframes breathe{
-    0%,100%{ transform:translateZ(-120px) scale(1);    opacity:.85; }
-    50%    { transform:translateZ(-120px) scale(1.14); opacity:1; }
+    0%,100%{ transform:translate(-50%,-50%) translateZ(-120px) scale(1);    opacity:.85; }
+    50%    { transform:translate(-50%,-50%) translateZ(-120px) scale(1.14); opacity:1; }
   }
 
   /* the mark itself, riding closest to the viewer.
@@ -141,15 +163,14 @@
      folded into the pointer-driven transform so the two cannot conflict. */
   .logo-3d{
     position:absolute; left:50%; top:50%;
-    height:clamp(190px, 34vw, 278px); width:auto;
+    height:var(--logo-h); width:auto; max-width:100%;
     margin:0; transform-origin:50% 55%;
     transform:translate(-50%,-52%) translateZ(80px);
     animation:bob 7s ease-in-out infinite;
-    filter:drop-shadow(0 22px 26px rgba(32,31,47,.30));
+    filter:drop-shadow(0 18px 22px rgba(32,31,47,.30));
     will-change:transform;
-    cursor:grab;
     -webkit-user-drag:none; user-select:none;
-    touch-action:pan-y;
+    touch-action:pan-y;              /* never swallow a vertical scroll */
   }
   .js .logo-3d{ animation:none; }
   @keyframes bob{
@@ -157,10 +178,9 @@
     50%    { transform:translate(-50%,-56%) translateZ(80px) rotateZ(1.6deg)  rotateY(5deg); }
   }
 
-  /* contact shadow on the water, in sync with the bob */
   .cast{
     position:absolute; left:50%; top:80%;
-    width:190px; height:190px;
+    width:min(170px, 44vw); aspect-ratio:1;
     border-radius:50%;
     background:radial-gradient(ellipse, rgba(32,31,47,.30), rgba(32,31,47,0) 68%);
     transform:translate(-50%,-50%) rotateX(70deg) translateZ(-70px);
@@ -173,62 +193,112 @@
   }
   .js .cast{ animation:none; }
 
-  /* ============ typography ============ */
-  .mark{ font-size:13px; letter-spacing:.14em; color:var(--b600); font-weight:600; }
+  /* ---- type ---- */
+  .hero{ padding-block:34px 28px; text-align:center; }
+
+  .mark{
+    font-size:11.5px; letter-spacing:.12em; color:var(--b600); font-weight:600;
+    text-wrap:balance;
+  }
   .mark span{ color:var(--ink-soft); font-weight:400; letter-spacing:.02em; }
 
   h1.headline{
     font-family:'Fraunces', Georgia, serif;
     font-optical-sizing:auto; font-weight:480;
-    font-size:clamp(40px, 8vw, 68px); line-height:1.02;
-    margin:4px 0 6px; color:var(--ink);
+    font-size:var(--fs-h1); line-height:1.03;
+    margin:2px 0 4px; color:var(--ink);
+    text-wrap:balance;
   }
   h1.headline em{ font-style:italic; font-weight:340; color:var(--b600); }
 
   .ordinal{
     font-family:'Fraunces', Georgia, serif; font-weight:340; font-style:italic;
-    font-size:clamp(20px, 3.4vw, 26px); color:var(--ink-soft);
+    font-size:var(--fs-ordinal); color:var(--ink-soft);
+    margin:0 0 18px; text-wrap:balance;
+  }
+
+  .lede{
+    margin:0 auto;
+    max-width:34em;                  /* keeps running text near 65 characters */
+    color:var(--ink-soft);
   }
 
   .serif{ font-family:'Fraunces', Georgia, serif; }
 
-  .wave{ display:block; width:100%; height:34px; }
+  h2.section-title{
+    font-family:'Fraunces', Georgia, serif; font-weight:500;
+    font-size:var(--fs-h2); text-align:center;
+    margin:0 0 20px; text-wrap:balance;
+  }
+
+  .wave{ display:block; width:100%; height:26px; margin-top:30px; }
   .wave path{ fill:none; stroke:var(--b400); stroke-width:1.4; opacity:.5; }
 
-  /* ============ cards that tilt under the pointer ============ */
-  .tilt-scene{ perspective:800px; }
-  .tilt{
-    transform-style:preserve-3d;
-    transition:transform .45s cubic-bezier(.22,.61,.36,1), box-shadow .45s ease;
-    will-change:transform;
+  /* ---- details: ONE card of labelled rows on a phone.
+          Three separate cards stacked cost ~330px of scroll for three short
+          facts; as rows it is ~150px and reads like an invitation card. ---- */
+  .details{
+    margin-block:26px 34px;
+    border:1px solid rgba(30,28,40,.12);
+    border-radius:10px;
+    background:linear-gradient(170deg, rgba(255,255,255,.6), rgba(255,255,255,.14));
+    overflow:hidden;
   }
-  .tilt .lift{ transform:translateZ(26px); }
-
-  .detail-card{
-    border-radius:6px;
-    background:linear-gradient(160deg, rgba(255,255,255,.55), rgba(255,255,255,.12));
-    border:1px solid rgba(30,28,40,.10);
+  .detail + .detail{ border-top:1px solid var(--rule); }
+  .detail .lift{
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap:16px; padding:13px 16px;
   }
-  .detail-card:hover{ box-shadow:0 18px 34px -18px rgba(32,31,47,.45); }
+  .label{
+    font-size:12px; color:var(--reed); font-weight:600;
+    letter-spacing:.06em; text-transform:uppercase;
+    flex:none;
+  }
+  .value{
+    font-family:'Fraunces', Georgia, serif; font-weight:500;
+    font-size:17px; color:var(--ink); text-align:right;
+  }
+  .value.tbd{ font-style:italic; font-weight:400; font-size:15.5px; color:var(--ink-soft); }
 
-  .label{ font-size:12.5px; color:var(--reed); font-weight:600; letter-spacing:.02em; }
+  /* ---- invitation copy ---- */
+  .invite{
+    margin:0 auto 38px;
+    max-width:34em;
+    text-align:center;
+  }
+  .invite p{ margin:0 0 14px; }
+  .invite p:last-child{ margin-bottom:0; }
 
-  /* ============ programme ============ */
-  .program-item{ border-bottom:1px solid var(--rule); }
+  /* ---- programme ---- */
+  .program{ margin-bottom:38px; }
+  .program-list{
+    display:flex; flex-direction:column; gap:15px;
+    max-width:480px; margin-inline:auto;
+  }
+  .program-item{
+    display:flex; align-items:flex-start; gap:12px;
+    padding-bottom:15px;
+    border-bottom:1px solid var(--rule);
+  }
   .program-item:last-child{ border-bottom:none; padding-bottom:0; }
-  .program-item .bullet{
-    flex:none; margin-top:4px;
-    transition:transform .4s cubic-bezier(.22,.61,.36,1);
+  .program-item .bullet{ flex:none; margin-top:4px; }
+  .program-item strong{
+    display:block;
+    font-family:'Fraunces', Georgia, serif; font-weight:500;
+    font-size:16.5px; color:var(--ink);
   }
-  .program-item:hover .bullet{ transform:translateZ(20px) scale(1.18); }
+  .program-item span{ font-size:14.5px; color:var(--ink-soft); }
 
-  /* ============ rsvp ============ */
+  /* ---- rsvp ---- */
   .rsvp{
     background:linear-gradient(158deg, var(--b700) 0%, var(--b800) 52%, var(--b900) 100%);
     color:var(--paper);
-    border-radius:6px;
+    border-radius:10px;
+    padding:30px 20px;
+    text-align:center;
     position:relative; overflow:hidden;
-    box-shadow:0 30px 60px -32px rgba(20,20,31,.85);
+    box-shadow:0 22px 44px -26px rgba(20,20,31,.8);
+    margin-bottom:44px;
   }
   .rsvp::after{
     content:""; position:absolute; right:-40px; bottom:-56px;
@@ -240,31 +310,151 @@
     width:230px; height:230px; border-radius:50%;
     background:radial-gradient(circle, rgba(135,136,193,.20), transparent 70%);
   }
-  .rsvp-btn{
-    display:inline-block; background:var(--marigold); color:#241703;
-    font-weight:600; font-size:15px; text-decoration:none;
-    padding:14px 32px; border-radius:3px;
-    transform:translateZ(34px);
-    transition:transform .3s cubic-bezier(.22,.61,.36,1), box-shadow .3s ease;
-    box-shadow:0 10px 22px -10px rgba(0,0,0,.6);
+  .rsvp h2{
+    font-family:'Fraunces', Georgia, serif; font-weight:500;
+    font-size:24px; margin:0 0 8px; text-wrap:balance;
   }
-  .rsvp-btn:hover{ transform:translateZ(52px) translateY(-2px); box-shadow:0 18px 30px -12px rgba(0,0,0,.65); }
+  .rsvp p{
+    color:var(--lav-pale); font-size:15px;
+    max-width:34em; margin:0 auto 20px;
+  }
+
+  /* full-width on a phone, and tall enough to be an easy thumb target */
+  .rsvp-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; min-height:52px;
+    background:var(--marigold); color:#241703;
+    font-weight:600; font-size:15.5px; text-decoration:none;
+    padding:14px 24px; border-radius:6px;
+    box-shadow:0 10px 22px -10px rgba(0,0,0,.6);
+    transition:transform .18s ease, box-shadow .3s ease;
+  }
+  .rsvp-btn:active{ transform:scale(.985); }
   .rsvp-btn:focus-visible{ outline:3px solid var(--lav-pale); outline-offset:4px; }
 
+  .rsvp .contact{ margin-top:18px; font-size:13.5px; color:var(--lav-pale); }
+  .rsvp .contact a{ color:var(--lav-pale); text-decoration:underline; }
+
+  /* ---- footer ---- */
+  /* the reed drawing is a 720-wide viewBox stretched to fit; squeezed onto a
+     phone it flattens into a stray line, so it starts at tablet width */
+  .reeds{ display:none; }
   .reeds path{ stroke:var(--reed); stroke-width:1.6; fill:none; opacity:.6; }
+
+  footer{
+    text-align:center; padding-bottom:40px;
+    font-size:12.5px; color:var(--ink-soft);
+  }
+  footer .foot-logo{ display:block; height:34px; width:auto; margin:0 auto 10px; opacity:.9; }
+  footer .wordmark{ font-weight:600; letter-spacing:.12em; color:var(--b600); }
+  footer .full-name{ margin-top:2px; }
+  footer .site{ margin-top:3px; }
+  footer .note{ margin-top:6px; font-style:italic; }
 
   a{ color:var(--b600); }
 
-  /* ============ scroll reveal ============
-     Gated on .js so the invitation still reads with scripting off — without
-     this, every section below the hero stays at opacity:0 forever. */
+  /* ---- scroll reveal. Gated on .js so the invitation still reads with
+          scripting off — without this, every section below the hero would
+          stay at opacity:0 forever. ---- */
   .js .reveal{
-    opacity:0; transform:translateY(30px) scale(.985);
-    transition:opacity .85s ease, transform .85s cubic-bezier(.22,.61,.36,1);
+    opacity:0; transform:translateY(24px);
+    transition:opacity .8s ease, transform .8s cubic-bezier(.22,.61,.36,1);
   }
   .js .reveal.in{ opacity:1; transform:none; }
 
-  /* ============ motion off ============ */
+  /* ═══════════ 560px and up ═══════════ */
+  @media (min-width:560px){
+    :root{
+      --gutter:24px;
+      --stage-h:310px; --logo-h:220px; --glow-d:300px;
+      --fs-body:16.5px; --fs-h1:52px; --fs-ordinal:22px; --fs-h2:25px;
+    }
+    .hero{ padding-block:46px 34px; }
+    .mark{ font-size:12.5px; letter-spacing:.14em; }
+    .wave{ height:30px; margin-top:40px; }
+    .rsvp{ padding:38px 30px; border-radius:8px; }
+    .rsvp h2{ font-size:26px; }
+    /* back to a sized button once there is room for one */
+    .rsvp-btn{
+      display:inline-flex; width:auto; min-height:48px;
+      padding:14px 32px; border-radius:4px;
+    }
+  }
+
+  /* ═══════════ 720px and up: the three facts become a strip ═══════════ */
+  @media (min-width:720px){
+    :root{
+      --stage-h:370px; --logo-h:268px; --glow-d:340px;
+      --fs-body:17px; --fs-h1:64px; --fs-ordinal:25px; --fs-h2:26px;
+    }
+    .hero{ padding-block:56px 40px; }
+    .details{
+      display:grid; grid-template-columns:repeat(3,1fr);
+      border-radius:8px; margin-block:36px 44px;
+    }
+    .detail + .detail{ border-top:none; border-left:1px solid var(--rule); }
+    .detail .lift{
+      flex-direction:column; align-items:center; gap:5px;
+      padding:22px 14px; text-align:center;
+    }
+    .label{ letter-spacing:.02em; text-transform:none; font-size:12.5px; }
+    .value{ text-align:center; font-size:19px; }
+    .value.tbd{ font-size:16px; }
+    .invite{ margin-bottom:52px; }
+    .program{ margin-bottom:52px; }
+    h2.section-title{ margin-bottom:28px; }
+    .program-list{ gap:18px; }
+    .program-item{ gap:14px; padding-bottom:18px; }
+    .program-item strong{ font-size:17px; }
+    .rsvp{ padding:44px 32px; margin-bottom:60px; box-shadow:0 30px 60px -32px rgba(20,20,31,.85); }
+    .rsvp h2{ font-size:27px; }
+    .rsvp p{ font-size:15.5px; margin-bottom:24px; }
+    .reeds{ display:block; width:100%; height:46px; }
+    footer{ font-size:13px; padding-bottom:48px; }
+    footer .foot-logo{ height:36px; }
+  }
+
+  /* ═══════════ 1180px and up: margins wide enough for the watermarks ═══════════ */
+  @media (min-width:1180px){
+    .watermark{
+      display:block;
+      position:fixed; top:50%; pointer-events:none; z-index:0;
+      width:min(46vw, 460px); opacity:.055;
+      will-change:transform;
+    }
+    .watermark--left { left:0;  transform:translate(-42%,-50%) rotate(-8deg); }
+    .watermark--right{ right:0; transform:translate(42%,-46%) rotate(9deg); }
+  }
+
+  /* ═══════════ pointer-only 3-D flourishes ═══════════
+     Held together in one block so a touch device never pays for a hover state
+     it cannot leave, or a translateZ it cannot see. */
+  @media (hover:hover) and (pointer:fine){
+    .stage-inner{ transition:transform .5s cubic-bezier(.22,.61,.36,1); }
+    .js .stage-inner{ transition:none; }   /* the rAF loop does its own easing */
+
+    .tilt-scene{ perspective:800px; }
+    .tilt{
+      transform-style:preserve-3d;
+      transition:transform .45s cubic-bezier(.22,.61,.36,1), box-shadow .45s ease;
+      will-change:transform;
+    }
+    .tilt .lift{ transform:translateZ(22px); }
+    .details:hover{ box-shadow:0 18px 34px -18px rgba(32,31,47,.45); }
+
+    .program-item .bullet{ transition:transform .4s cubic-bezier(.22,.61,.36,1); }
+    .program-item:hover .bullet{ transform:translateZ(20px) scale(1.18); }
+
+    .rsvp-btn{
+      transform:translateZ(34px);
+      transition:transform .3s cubic-bezier(.22,.61,.36,1), box-shadow .3s ease;
+    }
+    .rsvp-btn:hover{ transform:translateZ(52px) translateY(-2px); box-shadow:0 18px 30px -12px rgba(0,0,0,.65); }
+
+    .logo-3d{ cursor:grab; }
+  }
+
+  /* ═══════════ motion off ═══════════ */
   @media (prefers-reduced-motion: reduce){
     html{ scroll-behavior:auto; }
     .logo-3d, .glow, .cast, .rings i{ animation:none !important; }
@@ -276,15 +466,15 @@
 </style>
 </head>
 
-<body class="font-sans text-ink">
+<body>
 
 <img src="logo.png" alt="" aria-hidden="true" class="watermark watermark--left"  data-parallax="0.05">
 <img src="logo.png" alt="" aria-hidden="true" class="watermark watermark--right" data-parallax="-0.07">
 
-<div class="page mx-auto w-full max-w-[720px] px-6">
+<div class="page">
 
   <!-- ══════════ HERO ══════════ -->
-  <header class="pt-14 pb-10 text-center">
+  <header class="hero">
     <div class="mark">JALJEEVIKA <span>· Centre for Aquatic Livelihood</span></div>
 
     <div class="stage" id="stage">
@@ -297,106 +487,113 @@
     </div>
 
     <h1 class="headline">Annual <em>Day</em></h1>
-    <p class="ordinal mb-7">— thirteen years since 30 September 2013 —</p>
-    <p class="mx-auto max-w-[480px] text-[17px] text-ink-soft">
+    <p class="ordinal">— thirteen years since 30 September 2013 —</p>
+    <p class="lede">
       A season of water, work, and the communities who make a living by the river&rsquo;s edge.
       Join us as we mark thirteen years and celebrate together.
     </p>
 
-    <svg class="wave mt-12" viewBox="0 0 720 34" preserveAspectRatio="none" aria-hidden="true">
+    <svg class="wave" viewBox="0 0 720 34" preserveAspectRatio="none" aria-hidden="true">
       <path d="M0 17 Q 60 2, 120 17 T 240 17 T 360 17 T 480 17 T 600 17 T 720 17"/>
     </svg>
   </header>
 
   <!-- ══════════ DETAILS ══════════ -->
-  <section class="tilt-scene reveal my-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-    <div class="tilt detail-card px-4 py-6 text-center">
+  <section class="details tilt-scene reveal">
+    <div class="detail tilt">
       <div class="lift">
-        <div class="label mb-1.5">Date</div>
-        <div class="serif text-[19px] font-medium">30 September 2026</div>
+        <span class="label">Date</span>
+        <span class="value">30 September 2026</span>
       </div>
     </div>
-    <div class="tilt detail-card px-4 py-6 text-center">
+    <div class="detail tilt">
       <div class="lift">
-        <div class="label mb-1.5">Venue</div>
-        <div class="serif text-[16px] italic text-ink-soft">To be announced</div>
+        <span class="label">Venue</span>
+        <span class="value tbd">To be announced</span>
       </div>
     </div>
-    <div class="tilt detail-card px-4 py-6 text-center">
+    <div class="detail tilt">
       <div class="lift">
-        <div class="label mb-1.5">Time</div>
-        <div class="serif text-[19px] font-medium">2:00 PM</div>
+        <span class="label">Time</span>
+        <span class="value">2:00 PM</span>
       </div>
     </div>
   </section>
 
   <!-- ══════════ INVITATION ══════════ -->
-  <section class="reveal mx-auto mb-14 max-w-[560px] text-center text-[17px]">
-    <p class="mb-4">You and your family are warmly invited to the Annual Day of the
-      <strong class="font-semibold">Centre for Aquatic Livelihood &ndash; Jaljeevika</strong>, marking thirteen years
-      since our founding on 30 September 2013 &mdash; an evening to honour the fisherfolk, farmers, field teams, and
-      partners who have shaped our work across Bihar, Uttar Pradesh, Madhya Pradesh, and Maharashtra.</p>
+  <section class="invite reveal">
+    <p>You and your family are warmly invited to the Annual Day of the
+      <strong>Centre for Aquatic Livelihood &ndash; Jaljeevika</strong>, marking thirteen years
+      since our founding on 30 September 2013 &mdash; an evening to honour the fisherfolk, farmers,
+      field teams, and partners who have shaped our work across Bihar, Uttar Pradesh,
+      Madhya Pradesh, and Maharashtra.</p>
     <p>The venue is being finalised and will be shared shortly &mdash; save the date and time for now.</p>
   </section>
 
   <!-- ══════════ PROGRAMME ══════════ -->
-  <section class="reveal mb-14">
-    <h2 class="serif mb-8 text-center text-[26px] font-medium">An evening of</h2>
+  <section class="program reveal">
+    <h2 class="section-title">An evening of</h2>
 
-    <div class="tilt-scene mx-auto flex max-w-[480px] flex-col gap-[18px]">
-      <div class="program-item tilt flex items-start gap-3.5 pb-[18px]">
+    <div class="program-list tilt-scene">
+      <div class="program-item tilt">
         <svg class="bullet" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 12c2-3 4-3 6 0s4 3 6 0s2-3 2-3" stroke="#6d7f45" stroke-width="1.6" fill="none"/></svg>
         <div class="lift">
-          <strong class="serif block text-[17px] font-medium">Stories from the field</strong>
-          <span class="text-[14.5px] text-ink-soft">Community members and field staff share what the year has meant for their work and livelihoods.</span>
+          <strong>Stories from the field</strong>
+          <span>Community members and field staff share what the year has meant for their work and livelihoods.</span>
         </div>
       </div>
 
-      <div class="program-item tilt flex items-start gap-3.5 pb-[18px]">
+      <div class="program-item tilt">
         <svg class="bullet" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 12c2-3 4-3 6 0s4 3 6 0s2-3 2-3" stroke="#6d7f45" stroke-width="1.6" fill="none"/></svg>
         <div class="lift">
-          <strong class="serif block text-[17px] font-medium">Recognitions and felicitations</strong>
-          <span class="text-[14.5px] text-ink-soft">Celebrating the teams and partners whose work carried the mission this year.</span>
+          <strong>Recognitions and felicitations</strong>
+          <span>Celebrating the teams and partners whose work carried the mission this year.</span>
         </div>
       </div>
 
-      <div class="program-item tilt flex items-start gap-3.5 pb-[18px]">
+      <div class="program-item tilt">
         <svg class="bullet" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 12c2-3 4-3 6 0s4 3 6 0s2-3 2-3" stroke="#6d7f45" stroke-width="1.6" fill="none"/></svg>
         <div class="lift">
-          <strong class="serif block text-[17px] font-medium">Cultural evening</strong>
-          <span class="text-[14.5px] text-ink-soft">Music and performances rooted in the riverside communities we work alongside.</span>
+          <strong>Cultural evening</strong>
+          <span>Music and performances rooted in the riverside communities we work alongside.</span>
         </div>
       </div>
 
-      <div class="program-item tilt flex items-start gap-3.5 pb-[18px]">
+      <div class="program-item tilt">
         <svg class="bullet" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 12c2-3 4-3 6 0s4 3 6 0s2-3 2-3" stroke="#6d7f45" stroke-width="1.6" fill="none"/></svg>
         <div class="lift">
-          <strong class="serif block text-[17px] font-medium">Dinner together</strong>
-          <span class="text-[14.5px] text-ink-soft">A shared meal to close the evening with everyone who made the year possible.</span>
+          <strong>Dinner together</strong>
+          <span>A shared meal to close the evening with everyone who made the year possible.</span>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ══════════ RSVP ══════════ -->
-  <section class="tilt-scene reveal mb-16">
-    <div class="rsvp tilt px-8 py-11 text-center">
+  <section class="tilt-scene reveal">
+    <div class="rsvp tilt">
       <div class="lift">
-        <h2 class="serif mb-2.5 text-[27px] font-medium">Confirm your visit</h2>
-        <p class="mx-auto mb-6 max-w-[380px] text-[15.5px] text-lavender-pale">
-          Let us know you&rsquo;re coming &mdash; it helps us plan seating, food, and a place for you at the table.
-        </p>
-        <a class="rsvp-btn" href="mailto:info@jaljeevika.org?subject=Annual%20Day%20RSVP">Confirm your visit</a>
-        <div class="mt-6 text-[13.5px] text-lavender-pale">
-          Questions? Write to
-          <a href="mailto:info@jaljeevika.org" class="text-lavender-pale underline">info@jaljeevika.org</a>
+        <h2>Confirm your visit</h2>
+        <p>Let us know you&rsquo;re coming &mdash; it helps us plan seating, food, and a place for you at the table.</p>
+
+        <!-- Gmail compose, so this opens Gmail (the app on Android/iOS where it
+             is installed) rather than whatever mail client the device has
+             registered for mailto:. The plain mailto: below is the fallback
+             for guests who do not use Gmail. -->
+        <a class="rsvp-btn"
+           href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=info@jaljeevika.org&amp;su=Annual%20Day%20RSVP&amp;body=I%20will%20attend%20the%20Jaljeevika%20Annual%20Day%20on%2030%20September%202026.%0A%0AName%3A%0ANumber%20of%20guests%3A%0APhone%3A"
+           target="_blank" rel="noopener">Confirm your visit</a>
+
+        <div class="contact">
+          Opens Gmail. You can also write to
+          <a href="mailto:info@jaljeevika.org?subject=Annual%20Day%20RSVP">info@jaljeevika.org</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ══════════ FOOTER ══════════ -->
-  <svg class="reeds block h-[46px] w-full" viewBox="0 0 720 46" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="reeds" viewBox="0 0 720 46" preserveAspectRatio="none" aria-hidden="true">
     <path d="M20 46 C 18 30, 26 18, 22 4"/>
     <path d="M40 46 C 42 28, 34 16, 38 2"/>
     <path d="M660 46 C 662 26, 654 14, 658 2"/>
@@ -404,12 +601,12 @@
     <path d="M0 40 Q 360 20 720 40" opacity="0.4"/>
   </svg>
 
-  <footer class="pb-12 text-center text-[13px] text-ink-soft">
-    <img src="logo.png" alt="" aria-hidden="true" class="mx-auto mb-3 h-9 w-auto opacity-90">
-    <div class="font-semibold tracking-[.12em] text-brand-600">JALJEEVIKA</div>
-    <div class="mt-0.5">Centre for Aquatic Livelihood &ndash; Jaljeevika</div>
-    <div class="mt-1">jaljeevika.org</div>
-    <div class="mt-1.5 italic">Venue details to follow &mdash; check back soon.</div>
+  <footer>
+    <img src="logo.png" alt="" aria-hidden="true" class="foot-logo">
+    <div class="wordmark">JALJEEVIKA</div>
+    <div class="full-name">Centre for Aquatic Livelihood &ndash; Jaljeevika</div>
+    <div class="site">jaljeevika.org</div>
+    <div class="note">Venue details to follow &mdash; check back soon.</div>
   </footer>
 
 </div>
@@ -419,12 +616,15 @@
   var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (calm.matches) return;
 
-  /* ================= hero: the droplet follows the cursor in 3-D =================
-     The pointer is tracked across the whole window, not just the stage box, so
-     the mark keeps turning to face the cursor wherever it is on the page.
-     Everything the logo does — turn, drift, bob — is composed into ONE transform
-     string per frame. Splitting it between a CSS keyframe and a JS write would
-     mean whichever ran last simply overwrote the other. */
+  var fine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+  /* ================= hero: the droplet moves in 3-D =================
+     On a fine pointer it tracks the cursor across the whole window. On a touch
+     device there is no cursor, so it keeps its idle bob and leans with the
+     accelerometer where the device offers one.
+     Turn, drift and bob are composed into ONE transform string per frame —
+     split between a CSS keyframe and a JS write, whichever ran last would
+     simply overwrite the other. */
   var stage = document.getElementById('stage');
   var inner = document.getElementById('stageInner');
   var logo  = stage && stage.querySelector('.logo-3d');
@@ -506,7 +706,8 @@
 
     function kick() { if (raf === null && visible) raf = requestAnimationFrame(frame); }
 
-    /* stop burning frames once the hero has scrolled away */
+    /* stop burning frames once the hero has scrolled away — on a phone the hero
+       leaves the screen almost immediately, so this is most of the saving */
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (es) {
         visible = es[0].isIntersecting;
@@ -514,9 +715,11 @@
       }, { threshold: 0 }).observe(stage);
     }
 
-    window.addEventListener('pointermove', function (e) { aim(e.clientX, e.clientY); }, { passive: true });
-    document.addEventListener('pointerleave', rest);
-    window.addEventListener('blur', rest);
+    if (fine) {
+      window.addEventListener('pointermove', function (e) { aim(e.clientX, e.clientY); }, { passive: true });
+      document.addEventListener('pointerleave', rest);
+      window.addEventListener('blur', rest);
+    }
 
     /* phones have no cursor — lean with the accelerometer where one is offered */
     window.addEventListener('deviceorientation', function (e) {
@@ -533,7 +736,7 @@
   }
 
   /* ---- cards tilt under the pointer, fine pointers only ---- */
-  if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+  if (fine) {
     document.querySelectorAll('.tilt').forEach(function (card) {
       card.addEventListener('pointermove', function (e) {
         var r = card.getBoundingClientRect();
@@ -557,24 +760,27 @@
   }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
 
-  /* ---- side watermarks drift at their own depth ---- */
+  /* ---- side watermarks drift at their own depth. They are display:none below
+          1180px, so skip the scroll listener entirely on a phone. ---- */
   var marks = Array.prototype.slice.call(document.querySelectorAll('[data-parallax]'));
-  var ticking = false;
-  function drift() {
-    var y = window.scrollY;
-    marks.forEach(function (m) {
-      var k = parseFloat(m.dataset.parallax);
-      var left = m.classList.contains('watermark--left');
-      m.style.transform =
-        'translate(' + (left ? '-42%' : '42%') + ', calc(-50% + ' + (y * k).toFixed(1) + 'px))' +
-        ' rotate(' + (left ? (-8 + y * 0.004).toFixed(2) : (9 - y * 0.004).toFixed(2)) + 'deg)';
-    });
-    ticking = false;
+  if (marks.length && window.matchMedia('(min-width:1180px)').matches) {
+    var ticking = false;
+    function drift() {
+      var y = window.scrollY;
+      marks.forEach(function (m) {
+        var k = parseFloat(m.dataset.parallax);
+        var left = m.classList.contains('watermark--left');
+        m.style.transform =
+          'translate(' + (left ? '-42%' : '42%') + ', calc(-50% + ' + (y * k).toFixed(1) + 'px))' +
+          ' rotate(' + (left ? (-8 + y * 0.004).toFixed(2) : (9 - y * 0.004).toFixed(2)) + 'deg)';
+      });
+      ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(drift); }
+    }, { passive: true });
+    drift();
   }
-  window.addEventListener('scroll', function () {
-    if (!ticking) { ticking = true; window.requestAnimationFrame(drift); }
-  }, { passive: true });
-  drift();
 })();
 </script>
 </body>
