@@ -1,0 +1,7 @@
+# Static site: index.html and logo.png sit at the repo root, and there is
+# nothing to compile. Declaring it here keeps the deploy config in version
+# control rather than only in the Netlify dashboard.
+
+[build]
+  publish = "."
+  command = ""
