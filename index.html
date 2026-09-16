@@ -332,8 +332,38 @@
   .rsvp-btn:active{ transform:scale(.985); }
   .rsvp-btn:focus-visible{ outline:3px solid var(--lav-pale); outline-offset:4px; }
 
-  .rsvp .contact{ margin-top:18px; font-size:13.5px; color:var(--lav-pale); }
-  .rsvp .contact a{ color:var(--lav-pale); text-decoration:underline; }
+  .rsvp .contact{
+    margin-top:18px; font-size:13.5px; color:var(--lav-pale);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+
+  /* the address is a copy button, not a mailto: link — see the note in the
+     markup. Sized as a real tap target rather than a text link. */
+  .copy-mail{
+    display:inline-flex; align-items:center; gap:10px;
+    min-height:40px; padding:6px 10px 6px 12px;
+    font:inherit; color:var(--lav-pale);
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(198,198,224,.25);
+    border-radius:6px; cursor:pointer;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .copy-mail .addr{ font-weight:600; letter-spacing:.01em; }
+  .copy-mail .hint{
+    font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    padding:3px 7px; border-radius:4px;
+    background:rgba(198,198,224,.16); color:var(--lav-pale);
+  }
+  .copy-mail:active{ transform:scale(.99); }
+  .copy-mail:focus-visible{ outline:3px solid var(--lav-pale); outline-offset:3px; }
+  .copy-mail.copied{ border-color:var(--marigold); }
+  .copy-mail.copied .hint{ background:var(--marigold); color:#241703; }
+
+  /* visible only to screen readers */
+  .sr-live{
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;
+  }
 
   /* ---- footer ---- */
   /* the reed drawing is a 720-wide viewBox stretched to fit; squeezed onto a
@@ -439,7 +469,13 @@
       transition:transform .45s cubic-bezier(.22,.61,.36,1), box-shadow .45s ease;
       will-change:transform;
     }
-    .tilt .lift{ transform:translateZ(22px); }
+    /* The parallax lift is applied ONLY where no ancestor clips.
+       .details and .rsvp both set overflow:hidden (to keep the row rules and
+       the decorative circles inside their rounded corners), and translateZ
+       inside a perspective scales the content up — on a narrow desktop window,
+       where the padding is smallest, that scaled heading was being cut off by
+       the panel edge. The .tilt rotation already carries the depth there. */
+    .program-item .lift{ transform:translateZ(22px); }
     .details:hover{ box-shadow:0 18px 34px -18px rgba(32,31,47,.45); }
 
     .program-item .bullet{ transition:transform .4s cubic-bezier(.22,.61,.36,1); }
@@ -450,6 +486,8 @@
       transition:transform .3s cubic-bezier(.22,.61,.36,1), box-shadow .3s ease;
     }
     .rsvp-btn:hover{ transform:translateZ(52px) translateY(-2px); box-shadow:0 18px 30px -12px rgba(0,0,0,.65); }
+
+    .copy-mail:hover{ background:rgba(255,255,255,.13); border-color:rgba(198,198,224,.45); }
 
     .logo-3d{ cursor:grab; }
   }
@@ -487,7 +525,7 @@
     </div>
 
     <h1 class="headline">Annual <em>Day</em></h1>
-    <p class="ordinal">— thirteen years since 30 September 2013 —</p>
+    <p class="ordinal">— Thirteen years since 30 September 2013 —</p>
     <p class="lede">
       A season of water, work, and the communities who make a living by the river&rsquo;s edge.
       Join us as we mark thirteen years and celebrate together.
@@ -522,7 +560,7 @@
 
   <!-- ══════════ INVITATION ══════════ -->
   <section class="invite reveal">
-    <p>You and your family are warmly invited to the Annual Day of the
+    <p>You are warmly invited to the Annual Day of the
       <strong>Centre for Aquatic Livelihood &ndash; Jaljeevika</strong>, marking thirteen years
       since our founding on 30 September 2013 &mdash; an evening to honour the fisherfolk, farmers,
       field teams, and partners who have shaped our work across Bihar, Uttar Pradesh,
@@ -554,16 +592,8 @@
       <div class="program-item tilt">
         <svg class="bullet" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 12c2-3 4-3 6 0s4 3 6 0s2-3 2-3" stroke="#6d7f45" stroke-width="1.6" fill="none"/></svg>
         <div class="lift">
-          <strong>Cultural evening</strong>
-          <span>Music and performances rooted in the riverside communities we work alongside.</span>
-        </div>
-      </div>
-
-      <div class="program-item tilt">
-        <svg class="bullet" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 12c2-3 4-3 6 0s4 3 6 0s2-3 2-3" stroke="#6d7f45" stroke-width="1.6" fill="none"/></svg>
-        <div class="lift">
-          <strong>Dinner together</strong>
-          <span>A shared meal to close the evening with everyone who made the year possible.</span>
+          <strong>High tea together</strong>
+          <span>A shared high tea to close the day with everyone who made the year possible.</span>
         </div>
       </div>
     </div>
@@ -578,15 +608,21 @@
 
         <!-- Gmail compose, so this opens Gmail (the app on Android/iOS where it
              is installed) rather than whatever mail client the device has
-             registered for mailto:. The plain mailto: below is the fallback
-             for guests who do not use Gmail. -->
+             registered for mailto:. There is deliberately NO mailto: anywhere
+             on this page — on Windows it hands off to Outlook, which is exactly
+             what we are avoiding. Guests on another mail app copy the address
+             instead. -->
         <a class="rsvp-btn"
            href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=info@jaljeevika.org&amp;su=Annual%20Day%20RSVP&amp;body=I%20will%20attend%20the%20Jaljeevika%20Annual%20Day%20on%2030%20September%202026.%0A%0AName%3A%0ANumber%20of%20guests%3A%0APhone%3A"
            target="_blank" rel="noopener">Confirm your visit</a>
 
         <div class="contact">
-          Opens Gmail. You can also write to
-          <a href="mailto:info@jaljeevika.org?subject=Annual%20Day%20RSVP">info@jaljeevika.org</a>
+          <span>Opens Gmail. Using a different mail app?</span>
+          <button type="button" class="copy-mail" id="copyMail" data-mail="info@jaljeevika.org">
+            <span class="addr">info@jaljeevika.org</span>
+            <span class="hint" aria-hidden="true">Copy</span>
+          </button>
+          <span class="sr-live" role="status" aria-live="polite" id="copyStatus"></span>
         </div>
       </div>
     </div>
@@ -612,6 +648,56 @@
 </div>
 
 <script>
+/* ---- copy the address to the clipboard.
+       Deliberately NOT a mailto: link: on Windows that hands off to Outlook,
+       which is the whole thing we are avoiding here.
+       This sits in its own IIFE because the motion block below returns early
+       under prefers-reduced-motion — copying has to keep working there. ---- */
+(function () {
+  var btn = document.getElementById('copyMail');
+  if (!btn) return;
+  var hint = btn.querySelector('.hint');
+  var live = document.getElementById('copyStatus');
+  var revert;
+
+  function say(msg, ok) {
+    if (hint) hint.textContent = msg;
+    if (live) live.textContent = ok ? 'Address copied to the clipboard' : 'Press to select, then copy';
+    btn.classList.toggle('copied', !!ok);
+    clearTimeout(revert);
+    revert = setTimeout(function () {
+      if (hint) hint.textContent = 'Copy';
+      btn.classList.remove('copied');
+      if (live) live.textContent = '';
+    }, 2400);
+  }
+
+  /* older browsers, and any context where the async clipboard is unavailable */
+  function legacy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  btn.addEventListener('click', function () {
+    var mail = btn.dataset.mail;
+    function fallback() { var ok = legacy(mail); say(ok ? 'Copied' : 'Select it', ok); }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(mail).then(function () { say('Copied', true); }, fallback);
+    } else {
+      fallback();
+    }
+  });
+})();
+
 (function () {
   var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (calm.matches) return;
