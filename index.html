@@ -258,7 +258,6 @@
     font-family:'Fraunces', Georgia, serif; font-weight:500;
     font-size:17px; color:var(--ink); text-align:right;
   }
-  .value.tbd{ font-style:italic; font-weight:400; font-size:15.5px; color:var(--ink-soft); }
 
   /* ---- invitation copy ---- */
   .invite{
@@ -268,6 +267,32 @@
   }
   .invite p{ margin:0 0 14px; }
   .invite p:last-child{ margin-bottom:0; }
+
+  /* ---- venue ---- */
+  .venue-line{ line-height:1.5; }
+  .venue-line strong{
+    display:block;
+    font-family:'Fraunces', Georgia, serif; font-weight:500;
+    font-size:18px; color:var(--ink); margin-bottom:3px;
+  }
+  /* let the browser even out the address lines rather than hard-breaking it —
+     a fixed <br> orphaned "Art," on its own line at phone width */
+  .venue-line span{ color:var(--ink-soft); display:block; text-wrap:balance; }
+
+  /* sized as a tap target, not a text link — this is the control someone
+     reaches for on a phone while trying to find the place */
+  .map-link{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:44px; padding:10px 18px;
+    border:1px solid rgba(30,28,40,.22); border-radius:6px;
+    background:rgba(255,255,255,.45);
+    color:var(--b600); text-decoration:none;
+    font-weight:600; font-size:14.5px;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .map-link svg{ flex:none; }
+  .map-link:active{ transform:scale(.99); }
+  .map-link:focus-visible{ outline:3px solid var(--b400); outline-offset:3px; }
 
   /* ---- programme ---- */
   .program{ margin-bottom:38px; }
@@ -429,7 +454,6 @@
     }
     .label{ letter-spacing:.02em; text-transform:none; font-size:12.5px; }
     .value{ text-align:center; font-size:19px; }
-    .value.tbd{ font-size:16px; }
     .invite{ margin-bottom:52px; }
     .program{ margin-bottom:52px; }
     h2.section-title{ margin-bottom:28px; }
@@ -488,6 +512,7 @@
     .rsvp-btn:hover{ transform:translateZ(52px) translateY(-2px); box-shadow:0 18px 30px -12px rgba(0,0,0,.65); }
 
     .copy-mail:hover{ background:rgba(255,255,255,.13); border-color:rgba(198,198,224,.45); }
+    .map-link:hover{ background:rgba(255,255,255,.75); border-color:rgba(30,28,40,.38); }
 
     .logo-3d{ cursor:grab; }
   }
@@ -547,7 +572,7 @@
     <div class="detail tilt">
       <div class="lift">
         <span class="label">Venue</span>
-        <span class="value tbd">To be announced</span>
+        <span class="value">Empress Botanical Garden</span>
       </div>
     </div>
     <div class="detail tilt">
@@ -565,7 +590,22 @@
       since our founding on 30 September 2013 &mdash; an evening to honour the fisherfolk, farmers,
       field teams, and partners who have shaped our work across Bihar, Uttar Pradesh,
       Madhya Pradesh, and Maharashtra.</p>
-    <p>The venue is being finalised and will be shared shortly &mdash; save the date and time for now.</p>
+    <p class="venue-line">
+      <strong>Empress Botanical Garden</strong>
+      <span>Rupa Rahul Bajaj Centre for Environment and Art,
+      Kavade Mala, Ghorpadi, Pune, Maharashtra 411001</span>
+    </p>
+
+    <a class="map-link"
+       href="https://www.google.com/maps/search/?api=1&amp;query=Empress%20Botanical%20Garden%2C%20Rupa%20Rahul%20Bajaj%20Centre%20for%20Environment%20and%20Art%2C%20Kavade%20Mala%2C%20Ghorpadi%2C%20Pune%2C%20Maharashtra%20411001"
+       target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M8 1.6c-2.4 0-4.3 1.9-4.3 4.3 0 3.2 4.3 8.5 4.3 8.5s4.3-5.3 4.3-8.5c0-2.4-1.9-4.3-4.3-4.3z"
+              fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="8" cy="5.9" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      Open in Google Maps
+    </a>
   </section>
 
   <!-- ══════════ PROGRAMME ══════════ -->
@@ -642,7 +682,7 @@
     <div class="wordmark">JALJEEVIKA</div>
     <div class="full-name">Centre for Aquatic Livelihood &ndash; Jaljeevika</div>
     <div class="site">jaljeevika.org</div>
-    <div class="note">Venue details to follow &mdash; check back soon.</div>
+    <div class="note">We look forward to welcoming you.</div>
   </footer>
 
 </div>
