@@ -643,7 +643,7 @@
   <section class="tilt-scene reveal">
     <div class="rsvp tilt">
       <div class="lift">
-        <h2>Confirm your visit</h2>
+        <h2>RSVP</h2>
         <p>Let us know you&rsquo;re coming &mdash; it helps us plan seating, food, and a place for you at the table.</p>
 
         <!-- Gmail compose, so this opens Gmail (the app on Android/iOS where it
@@ -653,11 +653,11 @@
              what we are avoiding. Guests on another mail app copy the address
              instead. -->
         <a class="rsvp-btn"
-           href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=info@jaljeevika.org&amp;su=Annual%20Day%20-%20confirming%20my%20visit&amp;body=I%20will%20attend%20the%20Jaljeevika%20Annual%20Day%20on%2030%20September%202026.%0A%0AName%3A%0ANumber%20of%20guests%3A%0APhone%3A"
+           href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=info@jaljeevika.org&amp;su=Annual%20Day%20RSVP&amp;body=I%20will%20attend%20the%20Jaljeevika%20Annual%20Day%20on%2030%20September%202026.%0A%0AName%3A%0ANumber%20of%20guests%3A%0APhone%3A"
            target="_blank" rel="noopener">Confirm your visit</a>
 
         <div class="contact">
-          <span>Opens Gmail. Using a different mail app?</span>
+          <span id="mailHint">Opens Gmail with the details filled in. Using a different mail app?</span>
           <button type="button" class="copy-mail" id="copyMail" data-mail="info@jaljeevika.org">
             <span class="addr">info@jaljeevika.org</span>
             <span class="hint" aria-hidden="true">Copy</span>
@@ -736,6 +736,41 @@
       fallback();
     }
   });
+})();
+
+/* ---- mobile: swap the Gmail web-compose link for a mailto:
+       The https://mail.google.com/mail/?view=cm URL is a Gmail *web* feature.
+       On a phone the Gmail app intercepts that link and opens compose, but it
+       does not carry su= and body= across, so the message arrives blank — which
+       is exactly the "opens but does not auto fill" symptom.
+       mailto: is the one form every mobile mail client fills in reliably, so
+       touch devices get that instead. Desktop keeps the Gmail URL, because
+       there mailto: hands off to Outlook.
+       The href is the single source of truth: the recipient, subject and body
+       are read back out of it rather than duplicated here. ---- */
+(function () {
+  var btn = document.querySelector('.rsvp-btn');
+  if (!btn) return;
+  if (!window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+
+  try {
+    var u    = new URL(btn.href);
+    var to   = u.searchParams.get('to');
+    var subj = u.searchParams.get('su');
+    var body = u.searchParams.get('body');
+    if (!to) return;
+
+    btn.href = 'mailto:' + to +
+               '?subject=' + encodeURIComponent(subj || '') +
+               '&body='    + encodeURIComponent(body || '');
+
+    /* a mailto: in a new tab leaves an empty tab behind on most phones */
+    btn.removeAttribute('target');
+    btn.removeAttribute('rel');
+
+    var hint = document.getElementById('mailHint');
+    if (hint) hint.textContent = 'Opens your mail app with the details filled in. Prefer to type it yourself?';
+  } catch (e) { /* leave the Gmail link in place */ }
 })();
 
 (function () {
